@@ -4,8 +4,6 @@ package java.lang.ref.compat.internal;
 import java.lang.ref.compat.Cleaner;
 import java.lang.ref.compat.Cleaner.Cleanable;
 import java.lang.ref.ReferenceQueue;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,7 +35,6 @@ public final class CleanerImpl implements Runnable {
     /**
      * Called by Cleaner static initialization to provide the function
      * to map from Cleaner to CleanerImpl.
-     *
      * @param access a function to map from Cleaner to CleanerImpl
      */
     public static void setCleanerImplAccess(Function<java.lang.ref.compat.Cleaner, CleanerImpl> access) {
@@ -50,7 +47,6 @@ public final class CleanerImpl implements Runnable {
 
     /**
      * Called to get the CleanerImpl for a Cleaner.
-     *
      * @param cleaner the cleaner
      * @return the corresponding CleanerImpl
      */
@@ -81,8 +77,7 @@ public final class CleanerImpl implements Runnable {
      * Starts the Cleaner implementation.
      * Ensure this is the CleanerImpl for the Cleaner.
      * When started waits for Cleanables to be queued.
-     *
-     * @param cleaner       the cleaner
+     * @param cleaner the cleaner
      * @param threadFactory the thread factory
      */
     public void start(Cleaner cleaner, ThreadFactory threadFactory) {
@@ -106,11 +101,9 @@ public final class CleanerImpl implements Runnable {
     }
 
     // Android-added: start system cleaner which does not need a thread factory.
-
     /**
      * Starts the Cleaner implementation. Does not need a thread factory as it
      * should be used in the system cleaner only.
-     *
      * @param cleaner the cleaner
      * @hide
      */
@@ -165,10 +158,9 @@ public final class CleanerImpl implements Runnable {
 
         /**
          * Constructor for a phantom cleanable reference.
-         *
-         * @param obj     the object to monitor
+         * @param obj the object to monitor
          * @param cleaner the cleaner
-         * @param action  the action Runnable
+         * @param action the action Runnable
          */
         public PhantomCleanableRef(Object obj, Cleaner cleaner, Runnable action) {
             super(obj, cleaner);
@@ -329,15 +321,10 @@ public final class CleanerImpl implements Runnable {
         final AtomicInteger cleanerThreadNumber = new AtomicInteger();
 
         public Thread newThread(Runnable r) {
-            return AccessController.doPrivileged(new PrivilegedAction<>() {
-                @Override
-                public Thread run() {
-                    Thread t = InnocuousThread.newThread(r);
-                    t.setPriority(Thread.MAX_PRIORITY - 2);
-                    t.setName("Cleaner-" + cleanerThreadNumber.getAndIncrement());
-                    return t;
-                }
-            });
+            Thread t = InnocuousThread.newThread(r);
+            t.setPriority(Thread.MAX_PRIORITY - 2);
+            t.setName("Cleaner-" + cleanerThreadNumber.getAndIncrement());
+            return t;
         }
     }
 
