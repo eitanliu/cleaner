@@ -20,6 +20,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "cleaner"
-include(":app")
+// include(":app")
 include(":compat")
 include(":android")
