@@ -230,7 +230,7 @@ public final class Cleaner {
 
         @Override
         public void create() {
-            cleaner = java.lang.ref.Cleaner.create();
+            cleaner = android.system.SystemCleaner.cleaner();
         }
 
         @Override
@@ -264,7 +264,7 @@ public final class Cleaner {
 
         @Override
         public void create() {
-            cleaner = java.lang.ref.compat.Cleaner.create();
+            cleaner = java.lang.ref.compat.Cleaner.createSystemCleaner();
         }
 
         @Override
