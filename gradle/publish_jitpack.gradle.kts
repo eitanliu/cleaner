@@ -56,7 +56,7 @@ afterEvaluate {
 
                             // 排除指定组ID的依赖
                             if (groupId == "org.jetbrains.kotlin") {
-                                depsNode.remove(dependence)
+                                // depsNode.remove(dependence)
                             }
                         }
                     }

@@ -31,5 +31,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":compat"))
+    compileOnly(libs.kotlin.stdlib)
+    api(project(":compat"))
 }
