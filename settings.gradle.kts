@@ -17,6 +17,10 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
 }
 
 rootProject.name = "cleaner"
