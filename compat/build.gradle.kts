@@ -1,3 +1,4 @@
+apply(from = rootProject.file("gradle/publish_jitpack.gradle.kts"))
 plugins {
     id("java-library")
 }
