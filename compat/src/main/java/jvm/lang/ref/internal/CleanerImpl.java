@@ -1,8 +1,8 @@
-package java.lang.ref.compat.internal;
+package jvm.lang.ref.internal;
 
 
-import java.lang.ref.compat.Cleaner;
-import java.lang.ref.compat.Cleaner.Cleanable;
+import jvm.lang.ref.Cleaner;
+import jvm.lang.ref.Cleaner.Cleanable;
 import java.lang.ref.ReferenceQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +37,7 @@ public final class CleanerImpl implements Runnable {
      * to map from Cleaner to CleanerImpl.
      * @param access a function to map from Cleaner to CleanerImpl
      */
-    public static void setCleanerImplAccess(Function<java.lang.ref.compat.Cleaner, CleanerImpl> access) {
+    public static void setCleanerImplAccess(Function<Cleaner, CleanerImpl> access) {
         if (cleanerImplAccess == null) {
             cleanerImplAccess = access;
         } else {

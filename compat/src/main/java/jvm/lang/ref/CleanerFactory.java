@@ -1,4 +1,4 @@
-package java.lang.ref.compat;
+package jvm.lang.ref;
 
 /**
  * CleanerFactory provides a Cleaner for use within system modules.

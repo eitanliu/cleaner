@@ -1,4 +1,4 @@
-package java.lang.ref.compat.internal;
+package jvm.lang.ref.internal;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -1,8 +1,8 @@
-package java.lang.ref.compat.internal;
+package jvm.lang.ref.internal;
 
 import java.lang.ref.Reference;
 import java.lang.ref.PhantomReference;
-import java.lang.ref.compat.Cleaner;
+import jvm.lang.ref.Cleaner;
 import java.util.Objects;
 
 
