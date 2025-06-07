@@ -1,4 +1,4 @@
-package java.lang.ref.compat.internal;
+package jvm.lang.ref.internal;
 
 @FunctionalInterface
 public interface Function<T, R> {

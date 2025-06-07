@@ -23,17 +23,18 @@
  * questions.
  */
 
-package java.lang.ref.compat;
+package jvm.lang.ref.android;
+
+import android.annotation.SuppressLint;
+import android.os.Build;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.compat.internal.CleanerImpl;
-import java.lang.ref.compat.internal.Function;
-import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 
 // Android-changed: Use the shared SystemCleaner instance on Android.
 // Android-changed: Exceptions are only ignored by Cleaner.create() threads.
+
 /**
  * {@code Cleaner} manages a set of object references and corresponding cleaning actions.
  * <p>
@@ -47,8 +48,8 @@ import java.util.concurrent.ThreadFactory;
  * Each cleaner operates independently, managing the pending cleaning actions
  * and handling threading and termination when the cleaner is no longer in use.
  * Registering an object reference and corresponding cleaning action returns
- * a {@link Cleaner.Cleanable Cleanable}. The most efficient use is to explicitly invoke
- * the {@link Cleaner.Cleanable#clean clean} method when the object is closed or
+ * a {@link Cleanable Cleanable}. The most efficient use is to explicitly invoke
+ * the {@link Cleanable#clean clean} method when the object is closed or
  * no longer needed.
  * The cleaning action is a {@link Runnable} to be invoked at most once when
  * the object has become phantom reachable unless it has already been explicitly cleaned.
@@ -67,10 +68,9 @@ import java.util.concurrent.ThreadFactory;
  * <p>
  * Unless otherwise noted, passing a {@code null} argument to a constructor or
  * method in this class will cause a
- * {@link java.lang.NullPointerException NullPointerException} to be thrown.
+ * {@link NullPointerException NullPointerException} to be thrown.
  *
- * @apiNote
- * The cleaning action is invoked only after the associated object becomes
+ * @apiNote The cleaning action is invoked only after the associated object becomes
  * phantom reachable, so it is important that the object implementing the
  * cleaning action does not hold references to the object.
  * In this example, a static class encapsulates the cleaning state and action.
@@ -129,32 +129,17 @@ import java.util.concurrent.ThreadFactory;
  * @since 9
  */
 public final class Cleaner {
-
-    public static final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
-
-    /**
-     * The Cleaner implementation.
-     */
-    final CleanerImpl impl;
-
-    static {
-        CleanerImpl.setCleanerImplAccess(new Function<Cleaner, CleanerImpl>() {
-            @Override
-            public CleanerImpl apply(Cleaner cleaner) {
-                return cleaner.impl;
-            }
-        });
-    }
+    Api impl;
 
     /**
      * Construct a Cleaner implementation and start it.
      */
     private Cleaner() {
-        impl = new CleanerImpl();
-    }
-
-    private Cleaner(ReferenceQueue queue) {
-        impl = new CleanerImpl(queue);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            impl = new Impl33();
+        } else {
+            impl = new Impl();
+        }
     }
 
     /**
@@ -162,11 +147,11 @@ public final class Cleaner {
      * <p>
      * The cleaner creates a {@link Thread#setDaemon(boolean) daemon thread}
      * to process the phantom reachable objects and to invoke cleaning actions.
-     * The {@linkplain java.lang.Thread#getContextClassLoader context class loader}
+     * The {@linkplain Thread#getContextClassLoader context class loader}
      * of the thread is set to the
      * {@link ClassLoader#getSystemClassLoader() system class loader}.
      * The thread has no permissions, enforced only if a
-     * {@link java.lang.System#setSecurityManager(SecurityManager) SecurityManager is set}.
+     * {@link System#setSecurityManager(SecurityManager) SecurityManager is set}.
      * <p>
      * All exceptions thrown by the cleaning actions in this thread are ignored.
      * <p>
@@ -174,13 +159,12 @@ public final class Cleaner {
      * registered cleaning actions are complete.
      *
      * @return a new {@code Cleaner}
-     *
-     * @throws  SecurityException  if the current thread is not allowed to
-     *               create or start the thread.
+     * @throws SecurityException if the current thread is not allowed to
+     *                           create or start the thread.
      */
     public static Cleaner create() {
         Cleaner cleaner = new Cleaner();
-        cleaner.impl.start(cleaner, null);
+        cleaner.impl.create();
         return cleaner;
     }
 
@@ -199,28 +183,14 @@ public final class Cleaner {
      * @param threadFactory a {@code ThreadFactory} to return a new {@code Thread}
      *                      to process cleaning actions
      * @return a new {@code Cleaner}
-     *
-     * @throws  IllegalThreadStateException  if the thread from the thread
-     *               factory was {@link Thread.State#NEW not a new thread}.
-     * @throws  SecurityException  if the current thread is not allowed to
-     *               create or start the thread.
+     * @throws IllegalThreadStateException if the thread from the thread
+     *                                     factory was {@link Thread.State#NEW not a new thread}.
+     * @throws SecurityException           if the current thread is not allowed to
+     *                                     create or start the thread.
      */
     public static Cleaner create(ThreadFactory threadFactory) {
-        Objects.requireNonNull(threadFactory, "threadFactory");
         Cleaner cleaner = new Cleaner();
-        cleaner.impl.start(cleaner, threadFactory);
-        return cleaner;
-    }
-
-    // Android-added: objects registered in the system cleaner are cleaned
-    // by the finalizer daemon thread, not in a InnocuousThread.
-    /**
-     * Returns a new {@code Cleaner} associated with the finalizer thread.
-     * @hide
-     */
-    public static Cleaner createSystemCleaner() {
-        Cleaner cleaner = new Cleaner(queue);
-        cleaner.impl.start(cleaner);
+        cleaner.impl.create(threadFactory);
         return cleaner;
     }
 
@@ -230,19 +200,18 @@ public final class Cleaner {
      * Refer to the <a href="#compatible-cleaners">API Note</a> above for
      * cautions about the behavior of cleaning actions.
      *
-     * @param obj   the object to monitor
+     * @param obj    the object to monitor
      * @param action a {@code Runnable} to invoke when the object becomes phantom reachable
      * @return a {@code Cleanable} instance
      */
-    public Cleaner.Cleanable register(Object obj, Runnable action) {
-        Objects.requireNonNull(obj, "obj");
-        Objects.requireNonNull(action, "action");
-        return new CleanerImpl.PhantomCleanableRef(obj, this, action);
+    public Cleanable register(Object obj, Runnable action) {
+        return impl.register(obj, action);
     }
 
     /**
      * {@code Cleanable} represents an object and a
      * cleaning action registered in a {@code Cleaner}.
+     *
      * @since 9
      */
     public interface Cleanable {
@@ -252,6 +221,86 @@ public final class Cleaner {
          * regardless of the number of calls to {@code clean}.
          */
         void clean();
+    }
+
+
+    @SuppressLint("NewApi")
+    private static class Impl33 implements Api {
+        java.lang.ref.Cleaner cleaner;
+
+        @Override
+        public void create() {
+            cleaner = android.system.SystemCleaner.cleaner();
+        }
+
+        @Override
+        public void create(ThreadFactory threadFactory) {
+            cleaner = java.lang.ref.Cleaner.create(threadFactory);
+        }
+
+        @Override
+        public Cleanable register(Object obj, Runnable action) {
+            java.lang.ref.Cleaner.Cleanable cleanable = cleaner.register(obj, action);
+            return new CleanerWrapper(cleanable);
+        }
+
+
+        static final class CleanerWrapper implements Cleanable {
+            java.lang.ref.Cleaner.Cleanable cleanable;
+
+            public CleanerWrapper(java.lang.ref.Cleaner.Cleanable cleanable) {
+                this.cleanable = cleanable;
+            }
+
+            @Override
+            public void clean() {
+                cleanable.clean();
+            }
+        }
+    }
+
+    private static class Impl implements Api {
+        jvm.lang.ref.Cleaner cleaner;
+
+        @Override
+        public void create() {
+            cleaner = jvm.lang.ref.Cleaner.createSystemCleaner();
+        }
+
+        @Override
+        public void create(ThreadFactory threadFactory) {
+
+            cleaner = jvm.lang.ref.Cleaner.create(threadFactory);
+        }
+
+        @Override
+        public Cleanable register(Object obj, Runnable action) {
+            jvm.lang.ref.Cleaner.Cleanable cleanable = cleaner.register(obj, action);
+            return new CleanerWrapper(cleanable);
+        }
+
+
+        static final class CleanerWrapper implements Cleanable {
+            jvm.lang.ref.Cleaner.Cleanable cleanable;
+
+            public CleanerWrapper(jvm.lang.ref.Cleaner.Cleanable cleanable) {
+                this.cleanable = cleanable;
+            }
+
+            @Override
+            public void clean() {
+                cleanable.clean();
+            }
+        }
+    }
+
+    interface Api {
+
+        void create();
+
+        void create(ThreadFactory threadFactory);
+
+        Cleanable register(Object obj, Runnable action);
     }
 
 }
