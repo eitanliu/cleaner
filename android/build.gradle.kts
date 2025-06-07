@@ -41,4 +41,6 @@ kotlin {
 dependencies {
     compileOnly(libs.kotlin.stdlib)
     api(project(":compat"))
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
