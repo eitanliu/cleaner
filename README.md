@@ -2,22 +2,48 @@
 
 ### JVM
 Dependency `com.github.eitanliu.cleaner:compat:1.0.0`  
-User package `java.lang.ref.compat`
+User package `jvm.lang.ref`
+
+```java
+import jvm.lang.ref.CleanerFactory;
+
+public class TestCleaner {
+    String identity = Integer.toHexString(System.identityHashCode(this)) + ", " + this;
+
+    {
+        System.out.println("create obj " + identity);
+        CleanerFactory.cleaner().register(this, new CleanRunnable(this));
+    }
+
+    public static class CleanRunnable implements Runnable {
+        final String clean;
+
+        public CleanRunnable(String clean) {
+            this.clean = clean;
+        }
+
+        public CleanRunnable(TestCleaner cleaner) {
+            clean = Integer.toHexString(System.identityHashCode(cleaner)) + ", " + cleaner;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("clean  obj " + clean);
+        }
+    }
+
+}
+
+```
 
 ### Android
 
 Dependency `com.github.eitanliu.cleaner:android:1.0.0`  
-User package `java.lang.ref.android`  
+User package `jvm.lang.ref.android`  
 
 ```kotlin
-import java.lang.ref.android.Cleaner
-import java.lang.ref.android.CleanerFactory
-
-inline fun <T> Cleaner.registerObject(
-    resource: T, crossinline builder: (resource: T) -> Runnable
-) {
-    register(resource, builder(resource))
-}
+import jvm.lang.ref.android.CleanerFactory
+import jvm.lang.ref.android.registerObject
 
 class TestCleaner {
 
@@ -39,11 +65,4 @@ class TestCleaner {
     }
 }
 
-
-binding.btnCreate.setOnClickListener {
-    TestCleaner()
-}
-binding.btnClean.setOnClickListener {
-    Runtime.getRuntime().gc()
-}
 ```
