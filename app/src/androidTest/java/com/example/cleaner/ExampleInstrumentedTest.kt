@@ -21,4 +21,10 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.example.cleaner", appContext.packageName)
     }
+
+    @Test
+    fun cleaner() {
+        TestCleaner()
+        Runtime.getRuntime().gc()
+    }
 }

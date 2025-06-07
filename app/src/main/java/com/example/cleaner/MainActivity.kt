@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cleaner.databinding.ActivityMainBinding
-import java.lang.ref.android.Cleaner
-import java.lang.ref.android.CleanerFactory
+import jvm.lang.ref.android.CleanerFactory
+import jvm.lang.ref.android.registerObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,12 +36,6 @@ inline fun <T> cleanerRegister(
     resource: T, crossinline builder: (resource: T) -> Runnable
 ) {
     CleanerFactory.cleaner().registerObject(resource, builder)
-}
-
-inline fun <T> Cleaner.registerObject(
-    resource: T, crossinline builder: (resource: T) -> Runnable
-) {
-    register(resource, builder(resource))
 }
 
 class TestCleaner {
