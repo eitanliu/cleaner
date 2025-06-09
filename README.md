@@ -70,7 +70,7 @@ User package `jvm.lang.ref.android`
 
 ```kotlin
 import jvm.lang.ref.android.CleanerFactory
-import jvm.lang.ref.android.registerObject
+import java.lang.ref.WeakReference
 
 class TestCleaner {
 
@@ -79,16 +79,15 @@ class TestCleaner {
         val create = "${System.identityHashCode(this).toHexString()}, $this"
         Log.e("Cleaner", "obj create $create")
 
-        CleanerFactory.cleaner().registerObject(this) {
-            object : Runnable {
+        CleanerFactory.cleaner().register(this, object : Runnable {
 
-                val clean = "${System.identityHashCode(it).toHexString()}, $it"
+            val ref = WeakReference(this@TestCleaner)
+            val clean = "${System.identityHashCode(ref.get()).toHexString()}, ${ref.get()}"
 
-                override fun run() {
-                    Log.e("Cleaner", "obj clean  $clean")
-                }
+            override fun run() {
+                Log.e("Cleaner", "obj clean  $clean")
             }
-        }
+        })
     }
 }
 
