@@ -7,7 +7,8 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cleaner.databinding.ActivityMainBinding
 import jvm.lang.ref.android.CleanerFactory
-import jvm.lang.ref.android.registerObject
+import jvm.lang.ref.android.getValue
+import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,12 +33,6 @@ val hexFormat = HexFormat {
     number { removeLeadingZeros = true }
 }
 
-inline fun <T> cleanerRegister(
-    resource: T, crossinline builder: (resource: T) -> Runnable
-) {
-    CleanerFactory.cleaner().registerObject(resource, builder)
-}
-
 class TestCleaner {
 
     init {
@@ -45,15 +40,15 @@ class TestCleaner {
         val create = "${System.identityHashCode(this).toHexString()}, $this"
         Log.e("Cleaner", "obj create $create")
 
-        CleanerFactory.cleaner().registerObject(this) {
-            object : Runnable {
+        CleanerFactory.cleaner().register(this, object : Runnable {
 
-                val clean = "${System.identityHashCode(it).toHexString()}, $it"
+            val obj by WeakReference(this@TestCleaner)
 
-                override fun run() {
-                    Log.e("Cleaner", "obj clean  $clean")
-                }
+            val clean = "${System.identityHashCode(obj).toHexString()}, $obj"
+
+            override fun run() {
+                Log.e("Cleaner", "obj clean  $clean")
             }
-        }
+        })
     }
 }
