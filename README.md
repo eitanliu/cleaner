@@ -1,5 +1,32 @@
 # JDK 9 Cleaner Compatible
 
+[![](https://jitpack.io/v/eitanliu/cleaner.svg)](https://jitpack.io/#eitanliu/cleaner)
+
+### How to
+
+To get a Git project into your build:  
+*Step 1.* Add the JitPack repository to your build file  
+Add it in your root `settings.gradle.kts` at the end of repositories:
+
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+*Step 2.* Add the dependency
+
+```kotlin
+dependencies {
+    implementation("com.github.eitanliu.cleaner:android:1.0.0")
+    implementation("com.github.eitanliu.cleaner:compat:1.0.0")
+}
+```
+
 ### JVM
 Dependency `com.github.eitanliu.cleaner:compat:1.0.0`  
 User package `jvm.lang.ref`
@@ -43,7 +70,7 @@ User package `jvm.lang.ref.android`
 
 ```kotlin
 import jvm.lang.ref.android.CleanerFactory
-import jvm.lang.ref.android.registerObject
+import java.lang.ref.WeakReference
 
 class TestCleaner {
 
@@ -52,16 +79,15 @@ class TestCleaner {
         val create = "${System.identityHashCode(this).toHexString()}, $this"
         Log.e("Cleaner", "obj create $create")
 
-        CleanerFactory.cleaner().registerObject(this) {
-            object : Runnable {
+        CleanerFactory.cleaner().register(this, object : Runnable {
 
-                val clean = "${System.identityHashCode(it).toHexString()}, $it"
+            val ref = WeakReference(this@TestCleaner)
+            val clean = "${System.identityHashCode(ref.get()).toHexString()}, ${ref.get()}"
 
-                override fun run() {
-                    Log.e("Cleaner", "obj clean  $clean")
-                }
+            override fun run() {
+                Log.e("Cleaner", "obj clean  $clean")
             }
-        }
+        })
     }
 }
 
