@@ -22,13 +22,13 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.eitanliu.cleaner:android:1.0.0")
-    implementation("com.github.eitanliu.cleaner:compat:1.0.0")
+    implementation("com.github.eitanliu.cleaner:android:1.0.1")
+    implementation("com.github.eitanliu.cleaner:compat:1.0.1")
 }
 ```
 
 ### JVM
-Dependency `com.github.eitanliu.cleaner:compat:1.0.0`  
+Dependency `com.github.eitanliu.cleaner:compat:1.0.1`  
 User package `jvm.lang.ref`
 
 ```java
@@ -65,11 +65,12 @@ public class TestCleaner {
 
 ### Android
 
-Dependency `com.github.eitanliu.cleaner:android:1.0.0`  
+Dependency `com.github.eitanliu.cleaner:android:1.0.1`  
 User package `jvm.lang.ref.android`  
 
 ```kotlin
 import jvm.lang.ref.android.CleanerFactory
+import jvm.lang.ref.android.getValue
 import java.lang.ref.WeakReference
 
 class TestCleaner {
@@ -81,8 +82,8 @@ class TestCleaner {
 
         CleanerFactory.cleaner().register(this, object : Runnable {
 
-            val ref = WeakReference(this@TestCleaner)
-            val clean = "${System.identityHashCode(ref.get()).toHexString()}, ${ref.get()}"
+            val obj by WeakReference(this@TestCleaner)
+            val clean = "${System.identityHashCode(obj).toHexString()}, $obj"
 
             override fun run() {
                 Log.e("Cleaner", "obj clean  $clean")
