@@ -86,8 +86,8 @@ import java.util.concurrent.ThreadFactory;
  * by the Cleaner when the CleaningExample instance has become phantom reachable.
  * <pre>{@code
  * public class CleaningExample implements AutoCloseable {
- *        // Use the shared android.system.SystemCleaner instance on Android.
- *        private static final Cleaner cleaner = SystemCleaner.cleaner();
+ *        // Use the shared jvm.lang.ref.CleanerFactory instance on Android.
+ *        private static final Cleaner cleaner = CleanerFactory.cleaner();
  *
  *        static class State implements Runnable {
  *
