@@ -22,13 +22,13 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.eitanliu.cleaner:android:1.0.1")
-    implementation("com.github.eitanliu.cleaner:compat:1.0.1")
+    implementation("com.github.eitanliu.cleaner:android:1.0.2")
+    implementation("com.github.eitanliu.cleaner:compat:1.0.2")
 }
 ```
 
 ### JVM
-Dependency `com.github.eitanliu.cleaner:compat:1.0.1`  
+Dependency `com.github.eitanliu.cleaner:compat:1.0.2`  
 User package `jvm.lang.ref`
 
 ```java
@@ -65,12 +65,12 @@ public class TestCleaner {
 
 ### Android
 
-Dependency `com.github.eitanliu.cleaner:android:1.0.1`  
+Dependency `com.github.eitanliu.cleaner:android:1.0.2`  
 User package `jvm.lang.ref.android`  
 
 ```kotlin
 import jvm.lang.ref.android.CleanerFactory
-import jvm.lang.ref.android.getValue
+import jvm.lang.ref.getValue
 import java.lang.ref.WeakReference
 
 class TestCleaner {

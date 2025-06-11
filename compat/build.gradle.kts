@@ -1,6 +1,7 @@
 apply(from = rootProject.file("gradle/publish_jitpack.gradle.kts"))
 plugins {
     id("java-library")
+    kotlin("jvm")
 }
 
 java {
@@ -9,5 +10,7 @@ java {
 }
 
 dependencies {
+    compileOnly(libs.kotlin.stdlib)
+    testImplementation(libs.kotlin.stdlib)
     testImplementation(libs.junit)
 }

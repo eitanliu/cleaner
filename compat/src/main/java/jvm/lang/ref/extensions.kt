@@ -1,4 +1,4 @@
-package jvm.lang.ref.android
+package jvm.lang.ref
 
 import java.lang.ref.Reference
 import kotlin.reflect.KProperty

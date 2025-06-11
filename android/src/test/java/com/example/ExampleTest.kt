@@ -3,7 +3,7 @@
 package com.example
 
 import jvm.lang.ref.android.CleanerFactory
-import jvm.lang.ref.android.getValue
+import jvm.lang.ref.getValue
 import org.junit.Test
 import java.lang.ref.WeakReference
 
