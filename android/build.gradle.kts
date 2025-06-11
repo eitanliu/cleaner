@@ -41,4 +41,7 @@ kotlin {
 dependencies {
     compileOnly(libs.kotlin.stdlib)
     api(project(":compat"))
+
+    testImplementation(libs.kotlin.stdlib)
+    testImplementation(libs.junit)
 }
