@@ -264,7 +264,7 @@ public final class Cleaner {
 
         @Override
         public void create() {
-            cleaner = jvm.lang.ref.Cleaner.createSystemCleaner();
+            cleaner = jvm.lang.ref.CleanerFactory.cleaner();
         }
 
         @Override

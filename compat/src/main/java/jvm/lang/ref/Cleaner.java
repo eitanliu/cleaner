@@ -218,7 +218,7 @@ public final class Cleaner {
      * Returns a new {@code Cleaner} associated with the finalizer thread.
      * @hide
      */
-    public static Cleaner createSystemCleaner() {
+    static Cleaner createSystemCleaner() {
         Cleaner cleaner = new Cleaner(queue);
         cleaner.impl.start(cleaner);
         return cleaner;
